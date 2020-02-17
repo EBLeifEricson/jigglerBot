@@ -1,5 +1,5 @@
 # jigglerBot
- A basic Twitch bot for speedrunners.
+ A basic Twitch bot for speedrunners, designed in the spirit of the old WobberBot that was used for the Twitch team Wobblers.
  
  This is based off of an old branch that was given to a friend who happened to not speedrun, so conveniently the commands related to speedruns were removed. Since I wanted to make this open source, I plan to reimpliment the missing functions based off of the older code and work from there.
  
