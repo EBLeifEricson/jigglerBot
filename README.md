@@ -30,7 +30,7 @@
 `cooldown` - Time in milliseconds to wait between queued command responses. 1500 is the minimum if not modded. If modded, the minimum is 300. **Going below the miniumum in either case will lock out the bot for 30 minutes.**
 
 ## Built In Commands
-The bot comes with a selection of basic commands built in. Commands are executed from Twitch chat by bot moderators. **Currently, you must first add your name to mods.txt in order to be able to control the bot.**
+The bot comes with a selection of basic commands built in. Commands are executed from Twitch chat, **not** via the chat monitoring console. **Currently, you must add the first name to mods.txt in order to use admin commands.** Once added, you can add moderators using *!addmod.*
 
 ### Usable By Anyone
 
