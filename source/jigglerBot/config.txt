@@ -1,0 +1,7 @@
+username: botusername
+oauthkey: bot_oauth_key_goes_here
+channel: yourchannelhere
+motd: Please type a message of the day here.
+startMuted: 0
+autoMOTD: 1
+cooldown: 1500
