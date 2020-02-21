@@ -1,2 +1,6 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+include/* linguist-vendored
+lib/* linguist-vendored
+.gitattributes export-ignore
+.gitignore export-ignore
