@@ -65,7 +65,9 @@ The bot comes with a selection of basic commands built in. Commands are executed
  * SRC connectivity to list a game's current world record, user personal bests, etc
  * Integrating JigglerBot as the default account for responses, instead of requiring your own account
  * Disallowing cooldowns that would get the bot locked out, whether a moderator or not
- * Random quoting when no number specified
+ 
+ ~~* Random quoting when no number specified~~ Done!
+ 
  * Ability to turn off chat logging
  * Ability to recognize chat moderators/streamers
  
