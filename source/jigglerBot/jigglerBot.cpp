@@ -20,7 +20,7 @@ using namespace std;
 
 queue<string> commandQueue; // Queue to store commands during cooldown
 map<string, string> customCommands;
-vector<string> quotes;
+vector<string> globalQuotes;
 unordered_map<string, string> categories;
 string globalChannel; // Channel to speak in
 string globalUsername;
@@ -96,13 +96,12 @@ void loadCommands(const string& filename) {
 }
 
 void loadQuotes() {
-	quotes.empty();
+	globalQuotes.empty();
 	ifstream ifs("quotes.txt");
 	if (!ifs) return;
 	string result;
 	while (getline(ifs, result)) {
-		quotes.push_back(result);
-		cout << result << endl;
+		globalQuotes.push_back(result);
 	}
 	ifs.close();
 }
@@ -158,48 +157,57 @@ void addMod(const string& modname) {
 	ofs.close();
 }
 
-int addQuote(const string& quote) {
-	ifstream test("quotes.txt");
-	ofstream ofs;
-	int linenumber = 1;
-	if (test) {
-		vector<string> mods;
-		string mod;
-		while (getline(test, mod)) {
-			mods.push_back(mod);
-			++linenumber;
+int addQuote(const string& quoteToAdd) {
+	ifstream quoteIn("quotes.txt");
+	ofstream quoteOut;
+	int openquote = 0;
+	bool foundOpen = false;
+	if (quoteIn) {
+		vector<string> quotes;
+		string quote;
+		while (getline(quoteIn, quote)) {
+			if (quote == "null$_!null" && !foundOpen) {
+				foundOpen = true;
+				quotes.push_back(quoteToAdd);
+			}
+			else quotes.push_back(quote);
+			if (!foundOpen) ++openquote;
 		}
-		test.close();
-		ofs = ofstream("quotes.txt", std::ios::in | std::ios::out | std::ios::ate);
+		if (!foundOpen) quotes.push_back(quoteToAdd);
+		quoteIn.close();
+		quoteOut = ofstream("quotes.txt", std::ios::in | std::ios::out);
+		for (string quote : quotes) {
+			quoteOut << quote << endl;
+		}
+		globalQuotes = quotes;
 	}
 	else {
-		test.close();
-		ofs = ofstream("quotes.txt");
+		quoteIn.close();
+		quoteOut = ofstream("quotes.txt");
+		globalQuotes.empty();
 	}
-	ofs << quote << endl;
-	ofs.close();
-	loadQuotes();
-	return linenumber;
+	quoteOut.close();
+	return openquote;
 }
 
 void delQuote(const int& line) {
 	ifstream ifs("quotes.txt");
 	if (!ifs) return;
-	vector<string> mods;
-	string mod;
-	while (getline(ifs, mod)) {
-		mods.push_back(mod);
+	vector<string> quotes;
+	string quote;
+	int linenumber = 0;
+	while (getline(ifs, quote)) {
+		if (linenumber == line) quotes.push_back("null$_!null");
+		else quotes.push_back(quote);
+		++linenumber;
 	}
 	ifs.close();
 	ofstream ofs("quotes.txt");
-	int linenumber = 1;
-	for (string user : mods) {
-		if (linenumber != line) ofs << user << endl;
-		else ofs << "$_!\n";
-		++linenumber;
+	for (string quote : quotes) {
+		ofs << quote << endl;
 	}
 	ofs.close();
-	loadQuotes();
+	globalQuotes = quotes;
 }
 
 bool isMod(const string& user) {
@@ -369,17 +377,21 @@ void event_channel(irc_session_t * session, const char * event, const char * ori
 		else if (command.substr(0, 6) == "!quote") {
 			if (isMod(user) && (command.size() > 10) && (command.substr(7, 3) == "add")) {
 				int line = addQuote(string(params[1]).substr(11, string(params[1]).size() - 11));
-				commandQueue.push("Added quote #"+to_string(line)+":"+ string(params[1]).substr(11, command.size() - 11)+"");
+				commandQueue.push("Added quote #"+to_string(line+1)+": "+ string(params[1]).substr(11, command.size() - 11)+"");
 			}
 			else if (isMod(user) && (command.size() > 13) && (command.substr(7, 6) == "remove")) {
-				int quoteToRemove = atoi(string(params[1]).substr(14, string(params[1]).size() - 14).c_str());
+				int quoteToRemove = atoi(string(params[1]).substr(14, string(params[1]).size() - 14).c_str())-1;
 				delQuote(quoteToRemove);
-				commandQueue.push("Removed quote #" + to_string(quoteToRemove));
+				commandQueue.push("Removed quote #" + to_string(quoteToRemove+1));
+			}
+			else if (command.size() > 7) {
+				int quoteNum = atoi(command.substr(7, command.size() - 7).c_str()) - 1;
+				if (quoteNum < globalQuotes.size() && globalQuotes[quoteNum] != "null$_!null") commandQueue.push(globalQuotes[quoteNum]);
+				else commandQueue.push("Quote not found!");
 			}
 			else {
-				string quote = quotes[atoi(command.substr(7, command.size() - 7).c_str())];
-				if (quote != "$_!") commandQueue.push(quote);
-				else (commandQueue.push("Quote not found!"));
+				if (globalQuotes.size() > 0) commandQueue.push(globalQuotes[rand() % globalQuotes.size()]);
+				else commandQueue.push("No quotes added!");
 			}
 		}
 
